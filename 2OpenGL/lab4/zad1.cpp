@@ -10,13 +10,11 @@ GLfloat vertices[][3] = {{-1.0, -1.0, -1.0},
                          {-1.0, 1.0,  1.0},
                          {-1.5, 1.5,  0.5}};
 
-GLfloat vertices2[][3] = {
-                            {-1.0, -1.0, -1.0},
-                            {0, -2.0, 0},
-                            {1.0,  -1.0, -1.0},
-                            {-1.0, -1.0, 1.0},
-                            {1.0,  -1.0, 1.0}
-                         };
+GLfloat vertices2[][3] = {{1.0, 1.0, 1.0},
+                          {0,    2.0, 0},
+                          {1.0,  1.0, -1.0},
+                          {-1.0, 1.0, 1.0},
+                          {-1.0,  1.0, -1.0}};
 
 GLfloat normals[][3] = {{-1.0, -1.0, -1.0},
                         {1.0,  -1.0, -1.0},
@@ -38,10 +36,9 @@ GLfloat colors[][3] = {{1.0, 1.0, 1.0},
 
 
 void polygon(int a, int b, int c, int d) {
-//               0      3      2      1
 /* rysowanie wielościanu na podstawie listy wierzchołków */
-//    glBegin(GL_POLYGON);
-    glBegin(GL_LINE_STRIP);
+    glBegin(GL_POLYGON);
+//    glBegin(GL_LINE_STRIP);
     glColor3fv(colors[a]);
     glNormal3fv(normals[a]);
     glVertex3fv(vertices[a]);
@@ -60,16 +57,16 @@ void polygon(int a, int b, int c, int d) {
     glEnd();
 }
 
-void polygon2(int a, int b, int c, int d) {
+void triangle(int a, int b, int c) {
 /* rysowanie wielościanu na podstawie listy wierzchołków */
-    int t[] = {a, b, c, d};
-//    glBegin(GL_POLYGON);
-    glBegin(GL_LINE_STRIP);
+    int t[] = {a, b, c};
+    glBegin(GL_TRIANGLES);
+//    glBegin(GL_LINE_STRIP);
 
-    for (int i = 0; i < 4; i++) {
-//        glColor3fv(colors[t[i]]);
-//        glNormal3fv(normals[t[i]]);
-        glVertex3fv(vertices2[t[i]]);
+    for (int i : t) {
+        glColor3fv(colors[i]);
+        glNormal3fv(normals[i]);
+        glVertex3fv(vertices2[i]);
     }
     glEnd();
 }
@@ -83,30 +80,50 @@ void colorcube() {
     polygon(4, 5, 6, 7);
     polygon(0, 1, 5, 4);
 
-    polygon2(0, 1, 2, 0);
-    polygon2(1, 3, 3, 4);
-    polygon2(1, 4, 4, 1);
+    triangle(0, 1, 2);
+    triangle(2, 4, 1);
+    triangle(4, 3, 1);
+    triangle(3, 0, 1);
 }
 
 static GLfloat theta[] = {0.0, 0.0, 0.0};
 static GLint axis = 2;
 
-void display() { /* funkcja wyświetlania, czyści bufor okna i
-bufor głębi,
-braca sześcian, rysuje i podmienia bufory */
+void auxiliaryLines() {
+    glBegin(GL_LINES);
+    glColor3f(2.0f, 0.0f, 0.0f);
+    glVertex3f(0.f, 0.f, 0.f);
+    glVertex3f(2.f, 0.f, 0.f);
+
+    glColor3f(0.0f, 2.0f, 0.0f);
+    glVertex3f(0.f, 0.f, 0.f);
+    glVertex3f(0.f, 2.0f, 0.f);
+
+    glColor3f(0.0f, 0.0f, 2.0f);
+    glVertex3f(0.f, 0.f, 0.f);
+    glVertex3f(0.f, 0.f, 2.f);
+
+
+
+
+    glEnd();
+}
+
+void display() { /* funkcja wyświetlania, czyści bufor okna i bufor głębi, braca sześcian, rysuje i podmienia bufory */
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
     glRotatef(theta[0], 1.0, 0.0, 0.0);
     glRotatef(theta[1], 0.0, 1.0, 0.0);
     glRotatef(theta[2], 0.0, 0.0, 1.0);
     colorcube();
+    auxiliaryLines();
     glFlush();
     glutSwapBuffers();
 }
 
+
 void spinCube() {
-/* funkcja Idle, realizowana w czasie bezczynności
-obraca sześcian o 2 stopnie wokół zadanej osi */
+/* funkcja Idle, realizowana w czasie bezczynności obraca sześcian o 2 stopnie wokół zadanej osi */
     theta[axis] += 2.0;
     if (theta[axis] > 360.0) theta[axis] -= 360.0;
 /* display(); */
@@ -144,9 +161,9 @@ int main(int argc, char **argv) {
     glutDisplayFunc(display);
 
 
-//    glutIdleFunc(spinCube);
-//    glutMouseFunc(mouse);
-//    glEnable(GL_DEPTH_TEST);
+    glutIdleFunc(spinCube);
+    glutMouseFunc(mouse);
+    glEnable(GL_DEPTH_TEST);
     glutMainLoop();
     return 0;
 }
