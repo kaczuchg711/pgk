@@ -1,21 +1,15 @@
 #include <GL/glut.h>
 #include <cstdlib>
+#include <chrono>
+#include "windows.h"
 
 static int window;
 static int menu_id;
 static int submenu_id;
 static int rotate_submenu_id;
-static int value = 0;
-
-void menu(int num) {
-    if (num == 0) {
-        glutDestroyWindow(window);
-        exit(0);
-    } else {
-        value = num;
-    }
-    glutPostRedisplay();
-}
+static int value = 2;
+static float previousRotateSpeed = 1;
+static float rotateSpeed = 1;
 
 GLfloat vertices[][3] = {{-1.0, -1.0, -1.0},
                          {1.0,  -1.0, -1.0},
@@ -51,56 +45,14 @@ GLfloat colors[][3] = {{1.0, 1.0, 1.0},
                        {1.0, 1.0, 1.0},
                        {1.0, 1.0, 1.0}};
 
-
-void polygon(int a, int b, int c, int d) {
-/* rysowanie wielościanu na podstawie listy wierzchołków */
-    glBegin(GL_POLYGON);
-//    glBegin(GL_LINE_STRIP);
-    glColor3fv(colors[a]);
-    glNormal3fv(normals[a]);
-    glVertex3fv(vertices[a]);
-
-    glColor3fv(colors[b]);
-    glNormal3fv(normals[b]);
-    glVertex3fv(vertices[b]);
-
-    glColor3fv(colors[c]);
-    glNormal3fv(normals[c]);
-    glVertex3fv(vertices[c]);
-
-    glColor3fv(colors[d]);
-    glNormal3fv(normals[d]);
-    glVertex3fv(vertices[d]);
-    glEnd();
-}
-
-void triangle(int a, int b, int c) {
-/* rysowanie wielościanu na podstawie listy wierzchołków */
-    int t[] = {a, b, c};
-    glBegin(GL_TRIANGLES);
-//    glBegin(GL_LINE_STRIP);
-
-    for (int i : t) {
-        glColor3fv(colors[i]);
-        glNormal3fv(normals[i]);
-        glVertex3fv(vertices2[i]);
+void menu(int num) {
+    if (num == 0) {
+        glutDestroyWindow(window);
+        exit(0);
+    } else {
+        value = num;
     }
-    glEnd();
-}
-
-void colorcube() {
-/* odwzorowanie wierzchołków na ściany sześcianu */
-    polygon(0, 3, 2, 1);
-    polygon(2, 3, 7, 6);
-    polygon(0, 4, 7, 3);
-    polygon(1, 2, 6, 5);
-    polygon(4, 5, 6, 7);
-    polygon(0, 1, 5, 4);
-
-    triangle(0, 1, 2);
-    triangle(2, 4, 1);
-    triangle(4, 3, 1);
-    triangle(3, 0, 1);
+    glutPostRedisplay();
 }
 
 static GLfloat theta[] = {0.0, 0.0, 0.0};
@@ -124,7 +76,60 @@ void auxiliaryLines() {
     glEnd();
 }
 
-void display() { /* funkcja wyświetlania, czyści bufor okna i bufor głębi, braca sześcian, rysuje i podmienia bufory */
+void triangle(int a, int b, int c) {
+/* rysowanie wielościanu na podstawie listy wierzchołków */
+    int t[] = {a, b, c};
+//    glBegin(GL_TRIANGLES);
+    glBegin(GL_LINE_STRIP);
+
+    for (int i : t) {
+        glColor3fv(colors[i]);
+        glNormal3fv(normals[i]);
+        glVertex3fv(vertices2[i]);
+    }
+    glEnd();
+}
+
+void polygon(int a, int b, int c, int d) {
+/* rysowanie wielościanu na podstawie listy wierzchołków */
+//    glBegin(GL_POLYGON);
+    glBegin(GL_LINE_STRIP);
+    glColor3fv(colors[a]);
+    glNormal3fv(normals[a]);
+    glVertex3fv(vertices[a]);
+
+    glColor3fv(colors[b]);
+    glNormal3fv(normals[b]);
+    glVertex3fv(vertices[b]);
+
+    glColor3fv(colors[c]);
+    glNormal3fv(normals[c]);
+    glVertex3fv(vertices[c]);
+
+    glColor3fv(colors[d]);
+    glNormal3fv(normals[d]);
+    glVertex3fv(vertices[d]);
+    glEnd();
+}
+
+void colorcube() {
+/* odwzorowanie wierzchołków na ściany sześcianu */
+    polygon(0, 3, 2, 1);
+    polygon(2, 3, 7, 6);
+    polygon(0, 4, 7, 3);
+    polygon(1, 2, 6, 5);
+    polygon(4, 5, 6, 7);
+    polygon(0, 1, 5, 4);
+
+    triangle(0, 1, 2);
+    triangle(2, 4, 1);
+    triangle(4, 3, 1);
+    triangle(3, 0, 1);
+}
+
+void drawHome() {
+    glFlush();
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
     glRotatef(theta[0], 1.0, 0.0, 0.0);
@@ -136,20 +141,175 @@ void display() { /* funkcja wyświetlania, czyści bufor okna i bufor głębi, b
     glutSwapBuffers();
 }
 
+void drawSphere() {
+    glFlush();
+    glPushMatrix();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glLoadIdentity();
+    glRotatef(theta[0], 1.0, 0.0, 0.0);
+    glRotatef(theta[1], 0.0, 1.0, 0.0);
+    glRotatef(theta[2], 0.0, 0.0, 1.0);
+
+
+    glColor3d(1.0, 0.0, 0.0);
+    glutWireSphere(0.5, 50, 50);
+    glPopMatrix();
+
+    glFlush();
+    glutSwapBuffers();
+}
+
+void drawCone() {
+
+    glFlush();
+    glPushMatrix();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glLoadIdentity();
+    glRotatef(theta[0], 1.0, 0.0, 0.0);
+    glRotatef(theta[1], 0.0, 1.0, 0.0);
+    glRotatef(theta[2], 0.0, 0.0, 1.0);
+
+    glPushMatrix();
+    glColor3d(0.0, 1.0, 0.0);
+    glRotated(65, -1.0, 0.0, 0.0);
+    glutWireCone(0.5, 1.0, 50, 50);
+    glPopMatrix();
+
+    glFlush();
+    glutSwapBuffers();
+
+}
+
+void drawTorus() {
+    glFlush();
+    glPushMatrix();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glLoadIdentity();
+    glRotatef(theta[0], 1.0, 0.0, 0.0);
+    glRotatef(theta[1], 0.0, 1.0, 0.0);
+    glRotatef(theta[2], 0.0, 0.0, 1.0);
+
+    glPushMatrix();
+    glColor3d(0.0, 0.0, 1.0);
+    glutWireTorus(0.3, 0.6, 100, 100);
+    glPopMatrix();
+
+    glFlush();
+    glutSwapBuffers();
+}
+
+void drawTeapot() {
+    glFlush();
+    glPushMatrix();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glLoadIdentity();
+    glRotatef(theta[0], 1.0, 0.0, 0.0);
+    glRotatef(theta[1], 0.0, 1.0, 0.0);
+    glRotatef(theta[2], 0.0, 0.0, 1.0);
+
+    glPushMatrix();
+    glColor3d(1.0, 0.0, 1.0);
+    glutSolidTeapot(0.5);
+    glPopMatrix();
+
+
+    glFlush();
+    glutSwapBuffers();
+
+}
+
+int previousValue;
+
+void display() { /* funkcja wyświetlania, czyści bufor okna i bufor głębi, braca sześcian, rysuje i podmienia bufory */
+    switch (value) {
+        case 0:{
+            exit(0);
+        }
+        case 1: {
+            glFlush();
+            glPushMatrix();
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            previousValue = 1;
+        }
+            break;
+        case 2: {
+            drawSphere();
+
+            previousValue = 2;
+        }
+            break;
+        case 3: {
+            drawCone();
+            previousValue = 3;
+        }
+            break;
+        case 4: {
+            drawTorus();
+            previousValue = 4;
+        }
+            break;
+        case 5: {
+            drawTeapot();
+            previousValue = 5;
+        }
+            break;
+        case 6: {
+            drawHome();
+            previousValue = 6;
+        }
+            break;
+        case 10: {
+//            ox
+            axis = 0;
+            value = previousValue;
+            Sleep(20);
+
+        }
+            break;
+        case 11: {
+//            oy
+            axis = 1;
+            value = previousValue;
+            Sleep(20);
+        }
+            break;
+        case 12: {
+//            oz
+            axis = 2;
+            value = previousValue;
+            Sleep(20);
+
+        }
+            break;
+        case 13: {
+//            start/stop
+
+            if (rotateSpeed != 0) {
+                previousRotateSpeed = rotateSpeed;
+                rotateSpeed = 0;
+            }
+            else
+                rotateSpeed = previousRotateSpeed;
+
+            value = previousValue;
+        }
+            break;
+        default: {
+            0;
+        }
+    }
+}
 
 void spinCube() {
 /* funkcja Idle, realizowana w czasie bezczynności obraca sześcian o 2 stopnie wokół zadanej osi */
-    theta[axis] += 2.0;
+    theta[axis] += rotateSpeed;
     if (theta[axis] > 360.0) theta[axis] -= 360.0;
-/* display(); */
+    display();
     glutPostRedisplay();
-}
-
-void mouse(int btn, int state, int x, int y) {
-/* obsługa myszki, wybiera oś rotacji sześcianu */
-    if (btn == GLUT_LEFT_BUTTON && state == GLUT_DOWN) axis = 0;
-    if (btn == GLUT_MIDDLE_BUTTON && state == GLUT_DOWN) axis = 1;
-    if (btn == GLUT_RIGHT_BUTTON && state == GLUT_DOWN) axis = 2;
 }
 
 void myReshape(int w, int h) {
@@ -177,11 +337,13 @@ void createMenu() {
     glutAddMenuEntry("OX", 10);
     glutAddMenuEntry("OY", 11);
     glutAddMenuEntry("OZ", 12);
+    glutAddMenuEntry("Start/Stop", 13);
 
     menu_id = glutCreateMenu(menu);
     glutAddMenuEntry("Clear", 1);
     glutAddSubMenu("Draw", submenu_id);
     glutAddSubMenu("Rotate", rotate_submenu_id);
+
     glutAddMenuEntry("Quit", 0);
     glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
@@ -191,13 +353,15 @@ int main(int argc, char **argv) {
 /* przyjmujemy podwójne buforowanie oraz bufor głębokości */
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(500, 500);
-    glutCreateWindow("Sześcian");
+    glutCreateWindow("Szescian");
 
+
+    createMenu();
     glutReshapeFunc(myReshape);
     glutDisplayFunc(display);
 
+
     glutIdleFunc(spinCube);
-    glutMouseFunc(mouse);
 
     glEnable(GL_DEPTH_TEST);
     glutMainLoop();
