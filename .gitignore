@@ -6,3 +6,7 @@ venv
 *.bak
 *.avi
 .vs
+*.jpg
+Debug
+*.exe
+out

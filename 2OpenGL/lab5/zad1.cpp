@@ -7,10 +7,10 @@ static int window;
 static int menu_id;
 static int submenu_id;
 static int rotate_submenu_id;
-static int value = 2;
+static int value = 1;
 static float previousRotateSpeed = 1;
 static float rotateSpeed = 1;
-
+static bool isStrip = false;
 GLfloat vertices[][3] = {{-1.0, -1.0, -1.0},
                          {1.0,  -1.0, -1.0},
                          {1.0,  1.0,  -1.0},
@@ -36,14 +36,23 @@ GLfloat normals[][3] = {{-1.0, -1.0, -1.0},
                         {1.0,  1.0,  1.0},
                         {-1.0, 1.0,  1.0}};
 
-GLfloat colors[][3] = {{1.0, 1.0, 1.0},
-                       {1.0, 1.0, 1.0},
-                       {1.0, 1.0, 1.0},
-                       {1.0, 1.0, 1.0},
-                       {1.0, 1.0, 1.0},
-                       {1.0, 1.0, 1.0},
-                       {1.0, 1.0, 1.0},
-                       {1.0, 1.0, 1.0}};
+GLfloat colors[][3] = {{1, 0.196, 0.196},
+                       {1, 0.196, 0.196},
+                       {1, 0.196, 0.196},
+                       {1, 0.196, 0.196},
+                       {1, 0.196, 0.196},
+                       {1, 0.196, 0.196},
+                       {1, 0.196, 0.196},
+                       {1, 0.196, 0.196},};
+
+GLfloat colorst[][3] = {{0.301, 0.062, 0},
+                        {0.301, 0.062, 0},
+                        {0.301, 0.062, 0},
+                        {0.301, 0.062, 0},
+                        {0.301, 0.062, 0},
+                        {0.301, 0.062, 0},
+                        {0.301, 0.062, 0},
+                        {0.301, 0.062, 0},};
 
 void menu(int num) {
     if (num == 0) {
@@ -79,21 +88,28 @@ void auxiliaryLines() {
 void triangle(int a, int b, int c) {
 /* rysowanie wielościanu na podstawie listy wierzchołków */
     int t[] = {a, b, c};
-//    glBegin(GL_TRIANGLES);
-    glBegin(GL_LINE_STRIP);
+    if (isStrip)
+        glBegin(GL_TRIANGLES);
+    else
+        glBegin(GL_LINE_STRIP);
+
 
     for (int i : t) {
-        glColor3fv(colors[i]);
+        glColor3fv(colorst[i]);
         glNormal3fv(normals[i]);
         glVertex3fv(vertices2[i]);
     }
     glEnd();
 }
 
+
 void polygon(int a, int b, int c, int d) {
 /* rysowanie wielościanu na podstawie listy wierzchołków */
-//    glBegin(GL_POLYGON);
-    glBegin(GL_LINE_STRIP);
+
+    if (isStrip)
+        glBegin(GL_POLYGON);
+    else
+        glBegin(GL_LINE_STRIP);
     glColor3fv(colors[a]);
     glNormal3fv(normals[a]);
     glVertex3fv(vertices[a]);
@@ -158,7 +174,7 @@ void drawSphere() {
     glFlush();
     glutSwapBuffers();
 }
-
+//Todo po okręgu obrot
 void drawCone() {
 
     glFlush();
@@ -225,7 +241,7 @@ int previousValue;
 
 void display() { /* funkcja wyświetlania, czyści bufor okna i bufor głębi, braca sześcian, rysuje i podmienia bufory */
     switch (value) {
-        case 0:{
+        case 0: {
             exit(0);
         }
         case 1: {
@@ -233,7 +249,10 @@ void display() { /* funkcja wyświetlania, czyści bufor okna i bufor głębi, b
             glPushMatrix();
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            previousValue = 1;
+
+            glFlush();
+            glutSwapBuffers();
+
         }
             break;
         case 2: {
@@ -291,11 +310,42 @@ void display() { /* funkcja wyświetlania, czyści bufor okna i bufor głębi, b
             if (rotateSpeed != 0) {
                 previousRotateSpeed = rotateSpeed;
                 rotateSpeed = 0;
-            }
-            else
+            } else
                 rotateSpeed = previousRotateSpeed;
 
             value = previousValue;
+        }
+            break;
+        case 14: {
+//            slower
+            if (rotateSpeed > 0.5f)
+                rotateSpeed = rotateSpeed - 0.5f;
+            value = previousValue;
+
+        }
+            break;
+        case 15: {
+//            faster
+            rotateSpeed = rotateSpeed + 0.5f;
+            value = previousValue;
+        }
+        case 16: {
+//            faster
+            for (int i = 0; i <= 3; i++)
+                theta[i] = 0;
+            value = previousValue;
+        }
+            break;
+        case 17: {
+            if (isStrip)
+                isStrip = false;
+            else
+                isStrip = true;
+            value = previousValue;
+        }
+        case 18: {
+//                po okręgu
+
         }
             break;
         default: {
@@ -326,6 +376,7 @@ void myReshape(int w, int h) {
 }
 
 void createMenu() {
+//
     submenu_id = glutCreateMenu(menu);
     glutAddMenuEntry("Sphere", 2);
     glutAddMenuEntry("Cone", 3);
@@ -338,12 +389,15 @@ void createMenu() {
     glutAddMenuEntry("OY", 11);
     glutAddMenuEntry("OZ", 12);
     glutAddMenuEntry("Start/Stop", 13);
+    glutAddMenuEntry("slower", 14);
+    glutAddMenuEntry("faster", 15);
+    glutAddMenuEntry("reset", 16);
 
     menu_id = glutCreateMenu(menu);
     glutAddMenuEntry("Clear", 1);
     glutAddSubMenu("Draw", submenu_id);
     glutAddSubMenu("Rotate", rotate_submenu_id);
-
+    glutAddMenuEntry("Type", 17);
     glutAddMenuEntry("Quit", 0);
     glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
