@@ -11,48 +11,37 @@ static float previousRotateSpeed = 1;
 static float rotateSpeed = 1;
 static bool isStrip = false;
 static float circleRadius = 0;
-GLfloat vertices[][3] = {{-0.3, -0.3, -0.3},
-                         {0.3,  -0.3, -0.3},
-                         {0.3,  0.3,  -0.3},
-                         {-0.3, 0.3,  -0.3},
-                         {-0.3, -0.3, 0.3},
-                         {0.3,  -0.3, 0.3},
-                         {0.3,  0.3,  0.3},
-                         {-0.3, 0.3,  0.3},
-                         {-1.5, 1.5,  0.5}};
+static bool multipleColor = true;
 
-GLfloat vertices2[][3] = {{0.3,  0.3, 0.3},
-                          {0,    1.0, 0},
-                          {0.3,  0.3, -0.3},
-                          {-0.3, 0.3, 0.3},
-                          {-0.3, 0.3, -0.3}};
+class Cor {
+    GLfloat CorTab[3]{};
+public:
+    Cor(GLfloat x, GLfloat y, GLfloat z) {
+        CorTab[0] = x;
+        CorTab[1] = y;
+        CorTab[2] = z;
+    }
 
-GLfloat normals[][3] = {{-1.0, -1.0, -1.0},
-                        {1.0,  -1.0, -1.0},
-                        {1.0,  1.0,  -1.0},
-                        {-1.0, 1.0,  -1.0},
-                        {-1.0, -1.0, 1.0},
-                        {1.0,  -1.0, 1.0},
-                        {1.0,  1.0,  1.0},
-                        {-1.0, 1.0,  1.0}};
+    GLfloat *operator()() {
+        return CorTab;
+    }
+};
 
-GLfloat colors[][3] = {{1, 0.196, 0.196},
-                       {1, 0.196, 0.196},
-                       {1, 0.196, 0.196},
-                       {1, 0.196, 0.196},
-                       {1, 0.196, 0.196},
-                       {1, 0.196, 0.196},
-                       {1, 0.196, 0.196},
-                       {1, 0.196, 0.196},};
+class Rgb_to_float {
+    GLfloat tab[3];
+public:
+    Rgb_to_float(int r, int g, int b) {
+        tab[0] = 3.92 * r/1000;
+        tab[1] = 3.92 * g/1000;
+        tab[2] = 3.92 * b/1000;
+    }
 
-GLfloat colorst[][3] = {{0.301, 0.062, 0},
-                        {0.301, 0.062, 0},
-                        {0.301, 0.062, 0},
-                        {0.301, 0.062, 0},
-                        {0.301, 0.062, 0},
-                        {0.301, 0.062, 0},
-                        {0.301, 0.062, 0},
-                        {0.301, 0.062, 0},};
+    GLfloat *operator()() {
+        return tab;
+    }
+
+};
+
 
 void menu(int num) {
     if (num == 0) {
@@ -64,9 +53,10 @@ void menu(int num) {
     glutPostRedisplay();
 }
 
-static GLfloat theta[] = {0.0, 0.0, 0.0};
+static GLfloat theta[] = {0.0,
+                          0.0,
+                          0.0};
 static GLint axis = 2;
-float dx = 0;
 
 void auxiliaryLines() {
 
@@ -86,65 +76,67 @@ void auxiliaryLines() {
     glEnd();
 }
 
-void triangle(int a, int b, int c) {
-/* rysowanie wielościanu na podstawie listy wierzchołków */
-    int t[] = {a, b, c};
 
-    if (isStrip)
-        glBegin(GL_TRIANGLES);
-    else
-        glBegin(GL_LINE_STRIP);
-
-
-    for (int i : t) {
-        glColor3fv(colorst[i]);
-        glNormal3fv(normals[i]);
-        glVertex3fv(vertices2[i]);
-    }
-    glEnd();
-}
-
-
-void polygon(int a, int b, int c, int d) {
-/* rysowanie wielościanu na podstawie listy wierzchołków */
+void mypolygon(Cor a, Cor b, Cor c, Cor d, Rgb_to_float color) {
 
     if (isStrip)
         glBegin(GL_POLYGON);
     else
         glBegin(GL_LINE_STRIP);
-    glColor3fv(colors[a]);
-    glNormal3fv(normals[a]);
-    glVertex3fv(vertices[a]);
 
-    glColor3fv(colors[b]);
-    glNormal3fv(normals[b]);
-    glVertex3fv(vertices[b]);
+    if (multipleColor)
+        glColor3fv(color());
+    else
+        glColor3fv(Rgb_to_float(0,255,255)());
 
-    glColor3fv(colors[c]);
-    glNormal3fv(normals[c]);
-    glVertex3fv(vertices[c]);
+    glVertex3fv(a());
+    glVertex3fv(b());
+    glVertex3fv(c());
+    glVertex3fv(d());
+    glVertex3fv(a());
 
-    glColor3fv(colors[d]);
-    glNormal3fv(normals[d]);
-    glVertex3fv(vertices[d]);
     glEnd();
+
 }
 
 void colorcube() {
 /* odwzorowanie wierzchołków na ściany sześcianu */
     glTranslatef(circleRadius, 0.f, 0.f);
 
-    polygon(0, 3, 2, 1);
-    polygon(2, 3, 7, 6);
-    polygon(0, 4, 7, 3);
-    polygon(1, 2, 6, 5);
-    polygon(4, 5, 6, 7);
-    polygon(0, 1, 5, 4);
 
-    triangle(0, 1, 2);
-    triangle(2, 4, 1);
-    triangle(4, 3, 1);
-    triangle(3, 0, 1);
+
+    mypolygon(Cor(-0.3, -0.3, -0.3),
+              Cor(-0.3, 0.3, -0.3),
+              Cor(0.3, 0.3, -0.3),
+              Cor(0.3, -0.3, -0.3),
+              Rgb_to_float(255, 255, 0));
+    mypolygon(Cor(0.3, 0.3, -0.3),
+              Cor(-0.3, 0.3, -0.3),
+              Cor(-0.3, 0.3, 0.3),
+              Cor(0.3, 0.3, 0.3),
+              Rgb_to_float(255, 0, 255));
+    mypolygon(Cor(-0.3, -0.3, -0.3),
+              Cor(-0.3, -0.3, 0.3),
+              Cor(-0.3, 0.3, 0.3),
+              Cor(-0.3, 0.3, -0.3),
+              Rgb_to_float(0, 255, 0));
+    mypolygon(Cor(0.3, -0.3, -0.3),
+              Cor(0.3, 0.3, -0.3),
+              Cor(0.3, 0.3, 0.3),
+              Cor(0.3, -0.3, 0.3),
+              Rgb_to_float(0, 255, 255));
+    mypolygon(Cor(-0.3, -0.3, -0.3),
+              Cor(0.3, -0.3, -0.3),
+              Cor(0.3, -0.3, 0.3),
+              Cor(-0.3, -0.3, 0.3),
+              Rgb_to_float(180, 255, 0));
+    mypolygon(Cor(0.3,-0.3,0.3),
+              Cor(-0.3,-0.3,0.3),
+              Cor(-0.3,0.3,0.3),
+              Cor(0.3,0.3,0.3),
+              Rgb_to_float(255, 255, 255));
+
+
 }
 
 void drawHome() {
