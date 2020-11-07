@@ -6,12 +6,13 @@ static int window;
 static int menu_id;
 static int submenu_id;
 static int rotate_submenu_id;
+static int typeSubmenuId;
 static int value = 6;
 static float previousRotateSpeed = 1;
 static float rotateSpeed = 1;
 static bool isStrip = false;
 static float circleRadius = 0;
-static bool multipleColor = true;
+static bool isMultipleColor = true;
 
 class Cor {
     GLfloat CorTab[3]{};
@@ -31,9 +32,9 @@ class Rgb_to_float {
     GLfloat tab[3]{};
 public:
     Rgb_to_float(int r, int g, int b) {
-        tab[0] = 3.92 * r/1000;
-        tab[1] = 3.92 * g/1000;
-        tab[2] = 3.92 * b/1000;
+        tab[0] = 3.92 * r / 1000;
+        tab[1] = 3.92 * g / 1000;
+        tab[2] = 3.92 * b / 1000;
     }
 
     GLfloat *operator()() {
@@ -84,10 +85,10 @@ void draw_polygon(Cor a, Cor b, Cor c, Cor d, Rgb_to_float color) {
     else
         glBegin(GL_LINE_STRIP);
 
-    if (multipleColor)
+    if (isMultipleColor)
         glColor3fv(color());
     else
-        glColor3fv(Rgb_to_float(0,255,255)());
+        glColor3fv(Rgb_to_float(0, 255, 255)());
 
     glVertex3fv(a());
     glVertex3fv(b());
@@ -143,7 +144,6 @@ void colorcube() {
 }
 
 void drawHome() {
-
     glRotatef(theta[0], 1.0, 0.0, 0.0);
     glRotatef(theta[1], 0.0, 1.0, 0.0);
     glRotatef(theta[2], 0.0, 0.0, 1.0);
@@ -153,9 +153,8 @@ void drawHome() {
     glFlush();
     glutSwapBuffers();
 }
+
 void drawTeapot() {
-
-
     glRotatef(theta[0], 1.0, 0.0, 0.0);
     glRotatef(theta[1], 0.0, 1.0, 0.0);
     glRotatef(theta[2], 0.0, 0.0, 1.0);
@@ -178,7 +177,6 @@ void display() { /* funkcja wyświetlania, czyści bufor okna i bufor głębi, b
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // NOLINT(hicpp-signed-bitwise)
     glPushMatrix();
     glLoadIdentity();
-
 
     switch (value) {
         case 0: {
@@ -259,10 +257,8 @@ void display() { /* funkcja wyświetlania, czyści bufor okna i bufor głębi, b
         }
             break;
         case 17: {
-            if (isStrip)
-                isStrip = false;
-            else
-                isStrip = true;
+            if (isStrip) isStrip = false;
+            else isStrip = true;
             value = previousValue;
         }
             break;
@@ -273,6 +269,12 @@ void display() { /* funkcja wyświetlania, czyści bufor okna i bufor głębi, b
             break;
         case 19: {
             circleRadius = 0.8f;
+            value = previousValue;
+        }
+            break;
+        case 20: {
+            if (isMultipleColor) isMultipleColor = false;
+            else isMultipleColor = true;
             value = previousValue;
         }
             break;
@@ -319,11 +321,15 @@ void createMenu() {
     glutAddMenuEntry("small circle", 18);
     glutAddMenuEntry("big circle", 19);
 
+    typeSubmenuId = glutCreateMenu(menu);
+    glutAddMenuEntry("Strip/Polygon", 17);
+    glutAddMenuEntry("OneColor/MultipleColor", 20);
+
     menu_id = glutCreateMenu(menu);
     glutAddMenuEntry("Clear", 1);
     glutAddSubMenu("Draw", submenu_id);
     glutAddSubMenu("Rotate", rotate_submenu_id);
-    glutAddMenuEntry("Type", 17);
+    glutAddSubMenu("Type", typeSubmenuId);
     glutAddMenuEntry("Quit", 0);
     glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
