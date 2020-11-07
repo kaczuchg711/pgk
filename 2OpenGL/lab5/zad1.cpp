@@ -28,7 +28,7 @@ public:
 };
 
 class Rgb_to_float {
-    GLfloat tab[3];
+    GLfloat tab[3]{};
 public:
     Rgb_to_float(int r, int g, int b) {
         tab[0] = 3.92 * r/1000;
@@ -77,7 +77,7 @@ void auxiliaryLines() {
 }
 
 
-void mypolygon(Cor a, Cor b, Cor c, Cor d, Rgb_to_float color) {
+void draw_polygon(Cor a, Cor b, Cor c, Cor d, Rgb_to_float color) {
 
     if (isStrip)
         glBegin(GL_POLYGON);
@@ -93,7 +93,7 @@ void mypolygon(Cor a, Cor b, Cor c, Cor d, Rgb_to_float color) {
     glVertex3fv(b());
     glVertex3fv(c());
     glVertex3fv(d());
-    glVertex3fv(a());
+
 
     glEnd();
 
@@ -103,38 +103,41 @@ void colorcube() {
 /* odwzorowanie wierzchołków na ściany sześcianu */
     glTranslatef(circleRadius, 0.f, 0.f);
 
+    draw_polygon(Cor(-0.3, -0.3, -0.3),
+                 Cor(-0.3, 0.3, -0.3),
+                 Cor(0.3, 0.3, -0.3),
+                 Cor(0.3, -0.3, -0.3),
+                 Rgb_to_float(255, 255, 0));
 
+    draw_polygon(Cor(0.3, 0.3, -0.3),
+                 Cor(-0.3, 0.3, -0.3),
+                 Cor(-0.3, 0.3, 0.3),
+                 Cor(0.3, 0.3, 0.3),
+                 Rgb_to_float(255, 0, 255));
 
-    mypolygon(Cor(-0.3, -0.3, -0.3),
-              Cor(-0.3, 0.3, -0.3),
-              Cor(0.3, 0.3, -0.3),
-              Cor(0.3, -0.3, -0.3),
-              Rgb_to_float(255, 255, 0));
-    mypolygon(Cor(0.3, 0.3, -0.3),
-              Cor(-0.3, 0.3, -0.3),
-              Cor(-0.3, 0.3, 0.3),
-              Cor(0.3, 0.3, 0.3),
-              Rgb_to_float(255, 0, 255));
-    mypolygon(Cor(-0.3, -0.3, -0.3),
-              Cor(-0.3, -0.3, 0.3),
-              Cor(-0.3, 0.3, 0.3),
-              Cor(-0.3, 0.3, -0.3),
-              Rgb_to_float(0, 255, 0));
-    mypolygon(Cor(0.3, -0.3, -0.3),
-              Cor(0.3, 0.3, -0.3),
-              Cor(0.3, 0.3, 0.3),
-              Cor(0.3, -0.3, 0.3),
-              Rgb_to_float(0, 255, 255));
-    mypolygon(Cor(-0.3, -0.3, -0.3),
-              Cor(0.3, -0.3, -0.3),
-              Cor(0.3, -0.3, 0.3),
-              Cor(-0.3, -0.3, 0.3),
-              Rgb_to_float(180, 255, 0));
-    mypolygon(Cor(0.3,-0.3,0.3),
-              Cor(-0.3,-0.3,0.3),
-              Cor(-0.3,0.3,0.3),
-              Cor(0.3,0.3,0.3),
-              Rgb_to_float(255, 255, 255));
+    draw_polygon(Cor(-0.3, -0.3, -0.3),
+                 Cor(-0.3, -0.3, 0.3),
+                 Cor(-0.3, 0.3, 0.3),
+                 Cor(-0.3, 0.3, -0.3),
+                 Rgb_to_float(0, 255, 0));
+
+    draw_polygon(Cor(0.3, -0.3, -0.3),
+                 Cor(0.3, 0.3, -0.3),
+                 Cor(0.3, 0.3, 0.3),
+                 Cor(0.3, -0.3, 0.3),
+                 Rgb_to_float(0, 255, 255));
+
+    draw_polygon(Cor(-0.3, -0.3, -0.3),
+                 Cor(0.3, -0.3, -0.3),
+                 Cor(0.3, -0.3, 0.3),
+                 Cor(-0.3, -0.3, 0.3),
+                 Rgb_to_float(180, 255, 0));
+
+    draw_polygon(Cor(0.3, -0.3, 0.3),
+                 Cor(-0.3, -0.3, 0.3),
+                 Cor(-0.3, 0.3, 0.3),
+                 Cor(0.3, 0.3, 0.3),
+                 Rgb_to_float(255, 255, 255));
 
 
 }
@@ -150,57 +153,6 @@ void drawHome() {
     glFlush();
     glutSwapBuffers();
 }
-
-void drawSphere() {
-
-
-    glRotatef(theta[0], 1.0, 0.0, 0.0);
-    glRotatef(theta[1], 0.0, 1.0, 0.0);
-    glRotatef(theta[2], 0.0, 0.0, 1.0);
-    glTranslatef(circleRadius, 0.f, 0.f);
-
-    glTranslatef(circleRadius, 0.f, 0.f);
-    glColor3d(1.0, 0.0, 0.0);
-    glutWireSphere(0.5, 50, 50);
-    glPopMatrix();
-
-    glFlush();
-    glutSwapBuffers();
-}
-
-void drawCone() {
-
-
-    glRotatef(theta[0], 1.0, 0.0, 0.0);
-    glRotatef(theta[1], 0.0, 1.0, 0.0);
-    glRotatef(theta[2], 0.0, 0.0, 1.0);
-    glTranslatef(circleRadius, 0.f, 0.f);
-    glPushMatrix();
-    glColor3d(0.0, 1.0, 0.0);
-    glRotated(65, -1.0, 0.0, 0.0);
-    glutWireCone(0.5, 1.0, 50, 50);
-    glPopMatrix();
-
-    glFlush();
-    glutSwapBuffers();
-
-}
-
-void drawTorus() {
-
-    glRotatef(theta[0], 1.0, 0.0, 0.0);
-    glRotatef(theta[1], 0.0, 1.0, 0.0);
-    glRotatef(theta[2], 0.0, 0.0, 1.0);
-    glTranslatef(circleRadius, 0.f, 0.f);
-    glPushMatrix();
-    glColor3d(0.0, 0.0, 1.0);
-    glutWireTorus(0.3, 0.6, 100, 100);
-    glPopMatrix();
-
-    glFlush();
-    glutSwapBuffers();
-}
-
 void drawTeapot() {
 
 
@@ -223,7 +175,7 @@ int previousValue;
 void display() { /* funkcja wyświetlania, czyści bufor okna i bufor głębi, braca sześcian, rysuje i podmienia bufory */
     glFlush();
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // NOLINT(hicpp-signed-bitwise)
     glPushMatrix();
     glLoadIdentity();
 
@@ -235,29 +187,9 @@ void display() { /* funkcja wyświetlania, czyści bufor okna i bufor głębi, b
         case 1: {
             glFlush();
             glPushMatrix();
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // NOLINT(hicpp-signed-bitwise)
             glFlush();
             glutSwapBuffers();
-
-        }
-            break;
-        case 2: {
-
-            drawSphere();
-
-            previousValue = 2;
-        }
-            break;
-        case 3: {
-            drawCone();
-            previousValue = 3;
-        }
-            break;
-        case 4: {
-            drawTorus();
-            previousValue = 4;
         }
             break;
         case 5: {
@@ -373,9 +305,6 @@ void myReshape(int w, int h) {
 void createMenu() {
 //
     submenu_id = glutCreateMenu(menu);
-    glutAddMenuEntry("Sphere", 2);
-    glutAddMenuEntry("Cone", 3);
-    glutAddMenuEntry("Torus", 4);
     glutAddMenuEntry("Teapot", 5);
     glutAddMenuEntry("MOJE!!!", 6);
 
@@ -402,7 +331,7 @@ void createMenu() {
 int main(int argc, char **argv) {
     glutInit(&argc, argv);
 /* przyjmujemy podwójne buforowanie oraz bufor głębokości */
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH); // NOLINT(hicpp-signed-bitwise)
     glutInitWindowSize(500, 500);
     glutCreateWindow("Szescian");
 
