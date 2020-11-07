@@ -1,31 +1,31 @@
 #include <GL/glut.h>
 #include <cstdlib>
-#include <chrono>
 #include "windows.h"
 
 static int window;
 static int menu_id;
 static int submenu_id;
 static int rotate_submenu_id;
-static int value = 1;
+static int value = 6;
 static float previousRotateSpeed = 1;
 static float rotateSpeed = 1;
 static bool isStrip = false;
-GLfloat vertices[][3] = {{-1.0, -1.0, -1.0},
-                         {1.0,  -1.0, -1.0},
-                         {1.0,  1.0,  -1.0},
-                         {-1.0, 1.0,  -1.0},
-                         {-1.0, -1.0, 1.0},
-                         {1.0,  -1.0, 1.0},
-                         {1.0,  1.0,  1.0},
-                         {-1.0, 1.0,  1.0},
+static float circleRadius = 0;
+GLfloat vertices[][3] = {{-0.3, -0.3, -0.3},
+                         {0.3,  -0.3, -0.3},
+                         {0.3,  0.3,  -0.3},
+                         {-0.3, 0.3,  -0.3},
+                         {-0.3, -0.3, 0.3},
+                         {0.3,  -0.3, 0.3},
+                         {0.3,  0.3,  0.3},
+                         {-0.3, 0.3,  0.3},
                          {-1.5, 1.5,  0.5}};
 
-GLfloat vertices2[][3] = {{1.0,  1.0, 1.0},
-                          {0,    2.0, 0},
-                          {1.0,  1.0, -1.0},
-                          {-1.0, 1.0, 1.0},
-                          {-1.0, 1.0, -1.0}};
+GLfloat vertices2[][3] = {{0.3,  0.3, 0.3},
+                          {0,    1.0, 0},
+                          {0.3,  0.3, -0.3},
+                          {-0.3, 0.3, 0.3},
+                          {-0.3, 0.3, -0.3}};
 
 GLfloat normals[][3] = {{-1.0, -1.0, -1.0},
                         {1.0,  -1.0, -1.0},
@@ -66,8 +66,10 @@ void menu(int num) {
 
 static GLfloat theta[] = {0.0, 0.0, 0.0};
 static GLint axis = 2;
+float dx = 0;
 
 void auxiliaryLines() {
+
     glBegin(GL_LINES);
     glColor3f(2.0f, 0.0f, 0.0f);
     glVertex3f(0.f, 0.f, 0.f);
@@ -81,13 +83,13 @@ void auxiliaryLines() {
     glVertex3f(0.f, 0.f, 0.f);
     glVertex3f(0.f, 0.f, 2.f);
 
-
     glEnd();
 }
 
 void triangle(int a, int b, int c) {
 /* rysowanie wielościanu na podstawie listy wierzchołków */
     int t[] = {a, b, c};
+
     if (isStrip)
         glBegin(GL_TRIANGLES);
     else
@@ -130,6 +132,8 @@ void polygon(int a, int b, int c, int d) {
 
 void colorcube() {
 /* odwzorowanie wierzchołków na ściany sześcianu */
+    glTranslatef(circleRadius, 0.f, 0.f);
+
     polygon(0, 3, 2, 1);
     polygon(2, 3, 7, 6);
     polygon(0, 4, 7, 3);
@@ -144,13 +148,11 @@ void colorcube() {
 }
 
 void drawHome() {
-    glFlush();
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glLoadIdentity();
     glRotatef(theta[0], 1.0, 0.0, 0.0);
     glRotatef(theta[1], 0.0, 1.0, 0.0);
     glRotatef(theta[2], 0.0, 0.0, 1.0);
+    glTranslatef(circleRadius, 0.f, 0.f);
     colorcube();
     auxiliaryLines();
     glFlush();
@@ -158,15 +160,14 @@ void drawHome() {
 }
 
 void drawSphere() {
-    glFlush();
-    glPushMatrix();
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glLoadIdentity();
+
+
     glRotatef(theta[0], 1.0, 0.0, 0.0);
     glRotatef(theta[1], 0.0, 1.0, 0.0);
     glRotatef(theta[2], 0.0, 0.0, 1.0);
+    glTranslatef(circleRadius, 0.f, 0.f);
 
-
+    glTranslatef(circleRadius, 0.f, 0.f);
     glColor3d(1.0, 0.0, 0.0);
     glutWireSphere(0.5, 50, 50);
     glPopMatrix();
@@ -174,18 +175,14 @@ void drawSphere() {
     glFlush();
     glutSwapBuffers();
 }
-//Todo po okręgu obrot
+
 void drawCone() {
 
-    glFlush();
-    glPushMatrix();
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glLoadIdentity();
     glRotatef(theta[0], 1.0, 0.0, 0.0);
     glRotatef(theta[1], 0.0, 1.0, 0.0);
     glRotatef(theta[2], 0.0, 0.0, 1.0);
-
+    glTranslatef(circleRadius, 0.f, 0.f);
     glPushMatrix();
     glColor3d(0.0, 1.0, 0.0);
     glRotated(65, -1.0, 0.0, 0.0);
@@ -198,15 +195,11 @@ void drawCone() {
 }
 
 void drawTorus() {
-    glFlush();
-    glPushMatrix();
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glLoadIdentity();
     glRotatef(theta[0], 1.0, 0.0, 0.0);
     glRotatef(theta[1], 0.0, 1.0, 0.0);
     glRotatef(theta[2], 0.0, 0.0, 1.0);
-
+    glTranslatef(circleRadius, 0.f, 0.f);
     glPushMatrix();
     glColor3d(0.0, 0.0, 1.0);
     glutWireTorus(0.3, 0.6, 100, 100);
@@ -217,21 +210,17 @@ void drawTorus() {
 }
 
 void drawTeapot() {
-    glFlush();
-    glPushMatrix();
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glLoadIdentity();
+
     glRotatef(theta[0], 1.0, 0.0, 0.0);
     glRotatef(theta[1], 0.0, 1.0, 0.0);
     glRotatef(theta[2], 0.0, 0.0, 1.0);
+    glTranslatef(circleRadius, 0.f, 0.f);
 
     glPushMatrix();
     glColor3d(1.0, 0.0, 1.0);
     glutSolidTeapot(0.5);
     glPopMatrix();
-
-
     glFlush();
     glutSwapBuffers();
 
@@ -240,6 +229,13 @@ void drawTeapot() {
 int previousValue;
 
 void display() { /* funkcja wyświetlania, czyści bufor okna i bufor głębi, braca sześcian, rysuje i podmienia bufory */
+    glFlush();
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glPushMatrix();
+    glLoadIdentity();
+
+
     switch (value) {
         case 0: {
             exit(0);
@@ -256,6 +252,7 @@ void display() { /* funkcja wyświetlania, czyści bufor okna i bufor głębi, b
         }
             break;
         case 2: {
+
             drawSphere();
 
             previousValue = 2;
@@ -330,9 +327,10 @@ void display() { /* funkcja wyświetlania, czyści bufor okna i bufor głębi, b
             value = previousValue;
         }
         case 16: {
-//            faster
+//            reset
             for (int i = 0; i <= 3; i++)
                 theta[i] = 0;
+            circleRadius = 0.f;
             value = previousValue;
         }
             break;
@@ -343,13 +341,18 @@ void display() { /* funkcja wyświetlania, czyści bufor okna i bufor głębi, b
                 isStrip = true;
             value = previousValue;
         }
+            break;
         case 18: {
-//                po okręgu
-
+            circleRadius = 0.4f;
+            value = previousValue;
+        }
+            break;
+        case 19: {
+            circleRadius = 0.8f;
+            value = previousValue;
         }
             break;
         default: {
-            0;
         }
     }
 }
@@ -392,6 +395,8 @@ void createMenu() {
     glutAddMenuEntry("slower", 14);
     glutAddMenuEntry("faster", 15);
     glutAddMenuEntry("reset", 16);
+    glutAddMenuEntry("small circle", 18);
+    glutAddMenuEntry("big circle", 19);
 
     menu_id = glutCreateMenu(menu);
     glutAddMenuEntry("Clear", 1);
