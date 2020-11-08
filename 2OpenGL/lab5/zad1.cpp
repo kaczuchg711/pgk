@@ -7,7 +7,7 @@ static int menu_id;
 static int submenu_id;
 static int rotate_submenu_id;
 static int typeSubmenuId;
-static int value = 6;
+static int value = 7;
 static float previousRotateSpeed = 1;
 static float rotateSpeed = 1;
 static bool isStrip = false;
@@ -94,13 +94,88 @@ void draw_polygon(Cor a, Cor b, Cor c, Cor d, Rgb_to_float color) {
     glVertex3fv(b());
     glVertex3fv(c());
     glVertex3fv(d());
+    glVertex3fv(a());
 
 
     glEnd();
 
 }
 
-void colorcube() {
+void draw_triangle(Cor a, Cor b, Cor c, Rgb_to_float color) {
+    if (isStrip)
+        glBegin(GL_TRIANGLES);
+    else
+        glBegin(GL_LINE_STRIP);
+
+    if (isMultipleColor)
+        glColor3fv(color());
+    else
+        glColor3fv(Rgb_to_float(0, 255, 255)());
+
+    glVertex3fv(a());
+    glVertex3fv(b());
+    glVertex3fv(c());
+
+
+    glEnd();
+
+}
+
+void draw_octahedron() {
+    glRotatef(theta[0], 1.0, 0.0, 0.0);
+    glRotatef(theta[1], 0.0, 1.0, 0.0);
+    glRotatef(theta[2], 0.0, 0.0, 1.0);
+    glTranslatef(circleRadius, 0.f, 0.f);
+
+
+    draw_triangle(Cor(-0.3, 0, -0.3),
+                  Cor(0, 0.6, 0),
+                  Cor(-0.3, 0, 0.3),
+                  Rgb_to_float(255, 0, 0));
+    draw_triangle(Cor(-0.3,0,0.3),
+                  Cor(0,0.6,0),
+                  Cor(0.3,0,0.3),
+                  Rgb_to_float(0,255,0));
+    draw_triangle(Cor(0.3,0,0.3),
+                  Cor(0,0.6,0),
+                  Cor(0.3,0,-0.3),
+                  Rgb_to_float(0,0,255));
+    draw_triangle(Cor(0.3,0,-0.3),
+                  Cor(0,0.6,0),
+                  Cor(-0.3,0,-0.3),
+                  Rgb_to_float(255,0,255));
+
+    draw_triangle(Cor(-0.3, 0, -0.3),
+                  Cor(0, -0.6, 0),
+                  Cor(-0.3, 0, 0.3),
+                  Rgb_to_float(255, 0, 0));
+    draw_triangle(Cor(-0.3,0,0.3),
+                  Cor(0,-0.6,0),
+                  Cor(0.3,0,0.3),
+                  Rgb_to_float(0,255,0));
+    draw_triangle(Cor(0.3,0,0.3),
+                  Cor(0,-0.6,0),
+                  Cor(0.3,0,-0.3),
+                  Rgb_to_float(0,0,255));
+    draw_triangle(Cor(0.3,0,-0.3),
+                  Cor(0,-0.6,0),
+                  Cor(-0.3,0,-0.3),
+                  Rgb_to_float(255,0,255));
+
+    draw_polygon(Cor(-0.3,0,-0.3),
+                 Cor(-0.3,0,0.3),
+                 Cor(0.3,0,0.3),
+                 Cor(0.3,0,-0.3),
+                 Rgb_to_float(255,255,255));
+
+
+
+    auxiliaryLines();
+    glFlush();
+    glutSwapBuffers();
+}
+
+void draw_polygons() {
 /* odwzorowanie wierzchołków na ściany sześcianu */
     glTranslatef(circleRadius, 0.f, 0.f);
 
@@ -143,18 +218,18 @@ void colorcube() {
 
 }
 
-void drawHome() {
+void draw_Cube() {
     glRotatef(theta[0], 1.0, 0.0, 0.0);
     glRotatef(theta[1], 0.0, 1.0, 0.0);
     glRotatef(theta[2], 0.0, 0.0, 1.0);
     glTranslatef(circleRadius, 0.f, 0.f);
-    colorcube();
+    draw_polygons();
     auxiliaryLines();
     glFlush();
     glutSwapBuffers();
 }
 
-void drawTeapot() {
+void draw_Teapot() {
     glRotatef(theta[0], 1.0, 0.0, 0.0);
     glRotatef(theta[1], 0.0, 1.0, 0.0);
     glRotatef(theta[2], 0.0, 0.0, 1.0);
@@ -191,13 +266,18 @@ void display() { /* funkcja wyświetlania, czyści bufor okna i bufor głębi, b
         }
             break;
         case 5: {
-            drawTeapot();
+            draw_Teapot();
             previousValue = 5;
         }
             break;
         case 6: {
-            drawHome();
+            draw_Cube();
             previousValue = 6;
+        }
+            break;
+        case 7: {
+            draw_octahedron();
+            previousValue = 7;
         }
             break;
         case 10: {
@@ -308,7 +388,8 @@ void createMenu() {
 //
     submenu_id = glutCreateMenu(menu);
     glutAddMenuEntry("Teapot", 5);
-    glutAddMenuEntry("MOJE!!!", 6);
+    glutAddMenuEntry("Cube", 6);
+    glutAddMenuEntry("Octahedron", 7);
 
     rotate_submenu_id = glutCreateMenu(menu);
     glutAddMenuEntry("OX", 10);
