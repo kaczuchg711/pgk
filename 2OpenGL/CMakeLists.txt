@@ -3,6 +3,6 @@ project(untitled)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(untitled  lab5/zad1.cpp)
+add_executable(untitled  lab5/zad1.cpp lab5/pom.cpp lab5/pom.h)
 
 

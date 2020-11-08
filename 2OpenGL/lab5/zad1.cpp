@@ -1,18 +1,20 @@
 #include <GL/glut.h>
 #include <cstdlib>
 #include "windows.h"
+#include "pom.h"
 
 static int window;
 static int menu_id;
 static int submenu_id;
 static int rotate_submenu_id;
 static int typeSubmenuId;
-static int value = 7;
+static int value = 21;
 static float previousRotateSpeed = 1;
 static float rotateSpeed = 1;
 static bool isStrip = false;
 static float circleRadius = 0;
 static bool isMultipleColor = true;
+GLuint texture;
 
 class Cor {
     GLfloat CorTab[3]{};
@@ -132,42 +134,41 @@ void draw_octahedron() {
                   Cor(0, 0.6, 0),
                   Cor(-0.3, 0, 0.3),
                   Rgb_to_float(255, 0, 0));
-    draw_triangle(Cor(-0.3,0,0.3),
-                  Cor(0,0.6,0),
-                  Cor(0.3,0,0.3),
-                  Rgb_to_float(0,255,0));
-    draw_triangle(Cor(0.3,0,0.3),
-                  Cor(0,0.6,0),
-                  Cor(0.3,0,-0.3),
-                  Rgb_to_float(0,0,255));
-    draw_triangle(Cor(0.3,0,-0.3),
-                  Cor(0,0.6,0),
-                  Cor(-0.3,0,-0.3),
-                  Rgb_to_float(255,0,255));
+    draw_triangle(Cor(-0.3, 0, 0.3),
+                  Cor(0, 0.6, 0),
+                  Cor(0.3, 0, 0.3),
+                  Rgb_to_float(0, 255, 0));
+    draw_triangle(Cor(0.3, 0, 0.3),
+                  Cor(0, 0.6, 0),
+                  Cor(0.3, 0, -0.3),
+                  Rgb_to_float(0, 0, 255));
+    draw_triangle(Cor(0.3, 0, -0.3),
+                  Cor(0, 0.6, 0),
+                  Cor(-0.3, 0, -0.3),
+                  Rgb_to_float(255, 0, 255));
 
     draw_triangle(Cor(-0.3, 0, -0.3),
                   Cor(0, -0.6, 0),
                   Cor(-0.3, 0, 0.3),
                   Rgb_to_float(255, 0, 0));
-    draw_triangle(Cor(-0.3,0,0.3),
-                  Cor(0,-0.6,0),
-                  Cor(0.3,0,0.3),
-                  Rgb_to_float(0,255,0));
-    draw_triangle(Cor(0.3,0,0.3),
-                  Cor(0,-0.6,0),
-                  Cor(0.3,0,-0.3),
-                  Rgb_to_float(0,0,255));
-    draw_triangle(Cor(0.3,0,-0.3),
-                  Cor(0,-0.6,0),
-                  Cor(-0.3,0,-0.3),
-                  Rgb_to_float(255,0,255));
+    draw_triangle(Cor(-0.3, 0, 0.3),
+                  Cor(0, -0.6, 0),
+                  Cor(0.3, 0, 0.3),
+                  Rgb_to_float(0, 255, 0));
+    draw_triangle(Cor(0.3, 0, 0.3),
+                  Cor(0, -0.6, 0),
+                  Cor(0.3, 0, -0.3),
+                  Rgb_to_float(0, 0, 255));
+    draw_triangle(Cor(0.3, 0, -0.3),
+                  Cor(0, -0.6, 0),
+                  Cor(-0.3, 0, -0.3),
+                  Rgb_to_float(255, 0, 255));
 
-    draw_polygon(Cor(-0.3,0,-0.3),
-                 Cor(-0.3,0,0.3),
-                 Cor(0.3,0,0.3),
-                 Cor(0.3,0,-0.3),
-                 Rgb_to_float(255,255,255));
-
+    draw_polygon(Cor(-0.3, 0, -0.3),
+                 Cor(-0.3, 0, 0.3),
+                 Cor(0.3, 0, 0.3),
+                 Cor(0.3, 0, -0.3),
+                 Rgb_to_float(255, 255, 255));
 
 
     auxiliaryLines();
@@ -245,6 +246,147 @@ void draw_Teapot() {
 }
 
 int previousValue;
+
+
+
+
+void myReshape(int w, int h) {
+    glViewport(0, 0, w, h);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    if (w <= h)
+        glOrtho(-2.0, 2.0, -2.0 * (GLfloat) h / (GLfloat) w,
+                2.0 * (GLfloat) h / (GLfloat) w, -10.0, 10.0);
+    else
+        glOrtho(-2.0 * (GLfloat) w / (GLfloat) h,
+                2.0 * (GLfloat) w / (GLfloat) h, -2.0, 2.0, -10.0, 10.0);
+    glMatrixMode(GL_MODELVIEW);
+}
+
+void createMenu() {
+//
+    submenu_id = glutCreateMenu(menu);
+    glutAddMenuEntry("Teapot", 5);
+    glutAddMenuEntry("Cube", 6);
+    glutAddMenuEntry("Octahedron", 7);
+
+    rotate_submenu_id = glutCreateMenu(menu);
+    glutAddMenuEntry("OX", 10);
+    glutAddMenuEntry("OY", 11);
+    glutAddMenuEntry("OZ", 12);
+    glutAddMenuEntry("Start/Stop", 13);
+    glutAddMenuEntry("slower", 14);
+    glutAddMenuEntry("faster", 15);
+    glutAddMenuEntry("reset", 16);
+    glutAddMenuEntry("small circle", 18);
+    glutAddMenuEntry("big circle", 19);
+
+    typeSubmenuId = glutCreateMenu(menu);
+    glutAddMenuEntry("Strip/Polygon", 17);
+    glutAddMenuEntry("OneColor/MultipleColor", 20);
+
+    menu_id = glutCreateMenu(menu);
+    glutAddMenuEntry("Clear", 1);
+    glutAddSubMenu("Draw", submenu_id);
+    glutAddSubMenu("Rotate", rotate_submenu_id);
+    glutAddSubMenu("Type", typeSubmenuId);
+    glutAddMenuEntry("Quit", 0);
+    glutAddMenuEntry("TESTTTTTTTTT", 21);
+
+    glutAttachMenu(GLUT_RIGHT_BUTTON);
+}
+
+// k
+#define FREEGLUT_STATIC
+const size_t arraySize = 512;
+const size_t checkSize = 1;
+GLubyte Checker[arraySize][arraySize][3];
+const GLubyte GLubyte_MAX = 255;
+
+
+constexpr GLubyte getColor(unsigned bytecolor, unsigned checkSize, unsigned x, unsigned y) {
+    switch (bytecolor) {
+        case 0:
+            return (x / checkSize + y / checkSize) % 2 == 0 ? GLubyte_MAX : 0;
+        case 2:
+            return (x / checkSize + y / checkSize) % 2 == 1 ? GLubyte_MAX : 0;
+        default:
+            return 0;
+    }
+}
+
+void fillChecker(GLubyte arr[arraySize][arraySize][3], unsigned checkSize) {
+    for (int i = 0; i < arraySize; ++i) {
+        for (int j = 0; j < arraySize; j++) {
+            for (int byteColor = 0; byteColor < 3; ++byteColor) {
+                arr[i][j][byteColor] = getColor(2, checkSize, i, j);
+            }
+        }
+    }
+}
+
+GLuint glInitTexture() {
+    GLuint t = 0;
+
+    glGenTextures(1, &t);
+    glBindTexture(GL_TEXTURE_2D, t);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  // (Actually, this one is the default)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, arraySize, arraySize, 0, GL_RGB, GL_UNSIGNED_BYTE, Checker);
+    return t;
+}
+
+void drawImage(GLuint file,
+               float x,
+               float y,
+               float w,
+               float h,
+               float angle) {
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    glPushMatrix();
+    glTranslatef(x, y, 0.0);
+    glRotatef(angle, 0.0, 0.0, 1.0);
+
+    glBindTexture(GL_TEXTURE_2D, file);
+    glEnable(GL_TEXTURE_2D);
+
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0, 0.0);
+    glVertex3f(x, y, 0.0f);
+    glTexCoord2f(0.0, 6.0 / arraySize);
+    glVertex3f(x, y + h, 0.0f);
+    glTexCoord2f(6.0 / arraySize, 6.0 / arraySize);
+    glVertex3f(x + w, y + h, 0.0f);
+    glTexCoord2f(6.0 / arraySize, 0.0);
+    glVertex3f(x + w, y, 0.0f);
+    glEnd();
+
+    glPopMatrix();
+}
+
+
+void render() {
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glEnable(GL_DEPTH_TEST);
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    const double w = glutGet(GLUT_WINDOW_WIDTH);
+    const double h = glutGet(GLUT_WINDOW_HEIGHT);
+    gluPerspective(45.0, w / h, 0.1, 1000.0);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glTranslatef(0, 0, -15);
+
+    drawImage(texture, 0.0f, 0.0f, 5.0f, 5.0f, 0.0);
+
+    glutSwapBuffers();
+}
 
 void display() { /* funkcja wyświetlania, czyści bufor okna i bufor głębi, braca sześcian, rysuje i podmienia bufory */
     glFlush();
@@ -358,6 +500,29 @@ void display() { /* funkcja wyświetlania, czyści bufor okna i bufor głębi, b
             value = previousValue;
         }
             break;
+        case 21: {
+            glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            glEnable(GL_DEPTH_TEST);
+
+            glMatrixMode(GL_PROJECTION);
+            glLoadIdentity();
+            const double w = glutGet(GLUT_WINDOW_WIDTH);
+            const double h = glutGet(GLUT_WINDOW_HEIGHT);
+            gluPerspective(45.0, w / h, 0.1, 1000.0);
+
+            glMatrixMode(GL_MODELVIEW);
+            glLoadIdentity();
+            glTranslatef(0, 0, -15);
+
+            drawImage(texture, 0.0f, 0.0f, 5.0f, 5.0f, 0.0);
+
+            glutSwapBuffers();
+            previousValue = value;
+
+        }
+            break;
         default: {
         }
     }
@@ -367,70 +532,30 @@ void spinCube() {
 /* funkcja Idle, realizowana w czasie bezczynności obraca sześcian o 2 stopnie wokół zadanej osi */
     theta[axis] += rotateSpeed;
     if (theta[axis] > 360.0) theta[axis] -= 360.0;
-    display();
+        display();
     glutPostRedisplay();
 }
 
-void myReshape(int w, int h) {
-    glViewport(0, 0, w, h);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    if (w <= h)
-        glOrtho(-2.0, 2.0, -2.0 * (GLfloat) h / (GLfloat) w,
-                2.0 * (GLfloat) h / (GLfloat) w, -10.0, 10.0);
-    else
-        glOrtho(-2.0 * (GLfloat) w / (GLfloat) h,
-                2.0 * (GLfloat) w / (GLfloat) h, -2.0, 2.0, -10.0, 10.0);
-    glMatrixMode(GL_MODELVIEW);
-}
-
-void createMenu() {
-//
-    submenu_id = glutCreateMenu(menu);
-    glutAddMenuEntry("Teapot", 5);
-    glutAddMenuEntry("Cube", 6);
-    glutAddMenuEntry("Octahedron", 7);
-
-    rotate_submenu_id = glutCreateMenu(menu);
-    glutAddMenuEntry("OX", 10);
-    glutAddMenuEntry("OY", 11);
-    glutAddMenuEntry("OZ", 12);
-    glutAddMenuEntry("Start/Stop", 13);
-    glutAddMenuEntry("slower", 14);
-    glutAddMenuEntry("faster", 15);
-    glutAddMenuEntry("reset", 16);
-    glutAddMenuEntry("small circle", 18);
-    glutAddMenuEntry("big circle", 19);
-
-    typeSubmenuId = glutCreateMenu(menu);
-    glutAddMenuEntry("Strip/Polygon", 17);
-    glutAddMenuEntry("OneColor/MultipleColor", 20);
-
-    menu_id = glutCreateMenu(menu);
-    glutAddMenuEntry("Clear", 1);
-    glutAddSubMenu("Draw", submenu_id);
-    glutAddSubMenu("Rotate", rotate_submenu_id);
-    glutAddSubMenu("Type", typeSubmenuId);
-    glutAddMenuEntry("Quit", 0);
-    glutAttachMenu(GLUT_RIGHT_BUTTON);
-}
-
 int main(int argc, char **argv) {
+    fillChecker(Checker, checkSize);
     glutInit(&argc, argv);
-/* przyjmujemy podwójne buforowanie oraz bufor głębokości */
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH); // NOLINT(hicpp-signed-bitwise)
-    glutInitWindowSize(500, 500);
-    glutCreateWindow("Szescian");
 
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH); // NOLINT(hicpp-signed-bitwise)
+    glutInitWindowSize(600, 600);
+    glutCreateWindow("Szescian");
+    texture = glInitTexture();
 
     createMenu();
     glutReshapeFunc(myReshape);
-    glutDisplayFunc(display);
+
+    glutDisplayFunc(render);
+//    glutDisplayFunc(display);
 
 
     glutIdleFunc(spinCube);
 
     glEnable(GL_DEPTH_TEST);
+    tak();
     glutMainLoop();
     return 0;
 }

@@ -1,3 +1,1 @@
-    Wybór wyświetlanego obiektu: (a) sześcian, (b) ośmiościan.
-    Wybór trybu wyświeltania: (a) krawędzie, (b) ściany jednokolorowe, (c) ściany wielokolorowe, (d) tekstury.
-    Dobór prędkości animacji: (a) mała, (b) średnia, (c) duża.
+    Wybór trybu wyświeltania: (d) tekstury.
