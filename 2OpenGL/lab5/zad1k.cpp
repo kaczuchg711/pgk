@@ -1,20 +1,25 @@
 // OpengGL3d.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 #define FREEGLUT_STATIC
+
 #include <GL/glut.h>
+
 const size_t arraySize = 512;
 const size_t checkSize = 1;
 GLubyte Checker[arraySize][arraySize][3];
 const GLubyte GLubyte_MAX = 255;
 
-constexpr GLubyte getColor(unsigned bytecolor,unsigned checkSize, unsigned x, unsigned y) {
-    switch (bytecolor)
-    {
-        case 0: return (x / checkSize + y / checkSize) % 2 == 0 ? GLubyte_MAX : 0;
-        case 2: return (x / checkSize + y / checkSize) % 2 == 1 ? GLubyte_MAX : 0;
-        default: return 0;
+constexpr GLubyte getColor(unsigned bytecolor, unsigned checkSize, unsigned x, unsigned y) {
+    switch (bytecolor) {
+        case 0:
+            return (x / checkSize + y / checkSize) % 2 == 0 ? GLubyte_MAX : 0;
+        case 2:
+            return (x / checkSize + y / checkSize) % 2 == 1 ? GLubyte_MAX : 0;
+        default:
+            return 0;
     }
 }
+
 void fillChecker(GLubyte arr[arraySize][arraySize][3], unsigned checkSize) {
     for (int i = 0; i < arraySize; ++i) {
         for (int j = 0; j < arraySize; j++) {
@@ -25,8 +30,7 @@ void fillChecker(GLubyte arr[arraySize][arraySize][3], unsigned checkSize) {
     }
 }
 
-GLuint glInitTexture()
-{
+GLuint glInitTexture() {
     GLuint t = 0;
 
     glGenTextures(1, &t);
@@ -44,8 +48,7 @@ void drawImage(GLuint file,
                float y,
                float w,
                float h,
-               float angle)
-{
+               float angle) {
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
     glPushMatrix();
     glTranslatef(x, y, 0.0);
@@ -55,18 +58,22 @@ void drawImage(GLuint file,
     glEnable(GL_TEXTURE_2D);
 
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0, 0.0); glVertex3f(x, y, 0.0f);
-    glTexCoord2f(0.0, 6.0 / arraySize); glVertex3f(x, y + h, 0.0f);
-    glTexCoord2f(6.0/ arraySize, 6.0 / arraySize); glVertex3f(x + w, y + h, 0.0f);
-    glTexCoord2f(6.0 / arraySize, 0.0); glVertex3f(x + w, y, 0.0f);
+    glTexCoord2f(0.0, 0.0);                         //0 0
+    glVertex3f(x, y, 0.0f);                            //0 0
+    glTexCoord2f(0.0, 24.0 / arraySize);             //0,85
+    glVertex3f(x, y + h, 0.0f);                     //0,
+    glTexCoord2f(24.0 / arraySize, 24.0 / arraySize);
+    glVertex3f(x + w, y + h, 0.0f);
+    glTexCoord2f(24.0 / arraySize, 0.0);
+    glVertex3f(x + w, y, 0.0f);
     glEnd();
 
     glPopMatrix();
 }
 
 GLuint texture;
-void render()
-{
+
+void render() {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -87,12 +94,13 @@ void render()
     glutSwapBuffers();
 }
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char *argv[]) {
     fillChecker(Checker, checkSize);
     glutInit(&argc, argv);
+
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(600, 600);
+
     glutCreateWindow("Applying Textures");
     glutDisplayFunc(render);
 

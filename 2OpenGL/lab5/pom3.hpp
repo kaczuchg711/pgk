@@ -37,17 +37,14 @@ constexpr GLubyte getColor(unsigned bytecolor, unsigned checkSize, unsigned x, u
 }
 
 void fillChecker(GLubyte arr[arraySize][arraySize][3], unsigned checkSize) {
-    for (int i = 0; i < arraySize; ++i) {
-        for (int j = 0; j < arraySize; j++) {
-            for (int byteColor = 0; byteColor < 3; ++byteColor) {
+    for (int i = 0; i < arraySize; ++i)
+        for (int j = 0; j < arraySize; j++)
+            for (int byteColor = 0; byteColor < 3; ++byteColor)
                 arr[i][j][byteColor] = getColor(byteColor, checkSize, i, j);
-            }
-        }
-    }
 }
 
 GLuint glInitTexture() {
-    GLuint t = 0;
+    GLuint t;
 
     glGenTextures(1, &t);
     glBindTexture(GL_TEXTURE_2D, t);
@@ -76,11 +73,11 @@ void drawImage(GLuint file,
     glBegin(GL_QUADS);
     glTexCoord2f(0.0, 0.0);
     glVertex3f(x, y, 0.0f);
-    glTexCoord2f(0.0, 6.0 / arraySize);
+    glTexCoord2f(0.0, 1.0 / arraySize);
     glVertex3f(x, y + h, 0.0f);
-    glTexCoord2f(6.0 / arraySize, 6.0 / arraySize);
+    glTexCoord2f(1.0 / arraySize, 1.0 / arraySize);
     glVertex3f(x + w, y + h, 0.0f);
-    glTexCoord2f(6.0 / arraySize, 0.0);
+    glTexCoord2f(1.0 / arraySize, 0.0);
     glVertex3f(x + w, y, 0.0f);
     glEnd();
 

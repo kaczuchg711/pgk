@@ -8,9 +8,9 @@ static int menu_id;
 static int submenu_id;
 static int rotate_submenu_id;
 static int typeSubmenuId;
-static int value = 21;
+static int value = 6;
 static float previousRotateSpeed = 1;
-static float rotateSpeed = 1;
+static float rotateSpeed = 0;
 static bool isStrip = false;
 static float circleRadius = 0;
 static bool isMultipleColor = true;
@@ -81,8 +81,11 @@ void auxiliaryLines() {
 
 void draw_polygon(Cor a, Cor b, Cor c, Cor d, Rgb_to_float color) {
 
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glEnable(GL_TEXTURE_2D);
     if (isStrip)
-        glBegin(GL_POLYGON);
+        glBegin(GL_QUADS);
     else
         glBegin(GL_LINE_STRIP);
 
@@ -91,9 +94,15 @@ void draw_polygon(Cor a, Cor b, Cor c, Cor d, Rgb_to_float color) {
     else
         glColor3fv(Rgb_to_float(0, 255, 255)());
 
+
+
+    glTexCoord3fv(a());
     glVertex3fv(a());
+    glTexCoord3fv(b());
     glVertex3fv(b());
+    glTexCoord3fv(c());
     glVertex3fv(c());
+    glTexCoord3fv(d());
     glVertex3fv(d());
     glVertex3fv(a());
 
@@ -178,41 +187,42 @@ void draw_octahedron() {
 void draw_polygons() {
 /* odwzorowanie wierzchołków na ściany sześcianu */
     glTranslatef(circleRadius, 0.f, 0.f);
+    float var = 1;
 
-    draw_polygon(Cor(-0.3, -0.3, -0.3),
-                 Cor(-0.3, 0.3, -0.3),
-                 Cor(0.3, 0.3, -0.3),
-                 Cor(0.3, -0.3, -0.3),
+    draw_polygon(Cor(-var, -var, -var),
+                 Cor(-var, var, -var),
+                 Cor(var, var, -var),
+                 Cor(var, -var, -var),
                  Rgb_to_float(255, 255, 0));
 
-    draw_polygon(Cor(0.3, 0.3, -0.3),
-                 Cor(-0.3, 0.3, -0.3),
-                 Cor(-0.3, 0.3, 0.3),
-                 Cor(0.3, 0.3, 0.3),
+    draw_polygon(Cor(var, var, -var),
+                 Cor(-var, var, -var),
+                 Cor(-var, var, var),
+                 Cor(var, var, var),
                  Rgb_to_float(255, 0, 255));
 
-    draw_polygon(Cor(-0.3, -0.3, -0.3),
-                 Cor(-0.3, -0.3, 0.3),
-                 Cor(-0.3, 0.3, 0.3),
-                 Cor(-0.3, 0.3, -0.3),
+    draw_polygon(Cor(-var, -var, -var),
+                 Cor(-var, -var, var),
+                 Cor(-var, var, var),
+                 Cor(-var, var, -var),
                  Rgb_to_float(0, 255, 0));
 
-    draw_polygon(Cor(0.3, -0.3, -0.3),
-                 Cor(0.3, 0.3, -0.3),
-                 Cor(0.3, 0.3, 0.3),
-                 Cor(0.3, -0.3, 0.3),
+    draw_polygon(Cor(var, -var, -var),
+                 Cor(var, var, -var),
+                 Cor(var, var, var),
+                 Cor(var, -var, var),
                  Rgb_to_float(0, 255, 255));
 
-    draw_polygon(Cor(-0.3, -0.3, -0.3),
-                 Cor(0.3, -0.3, -0.3),
-                 Cor(0.3, -0.3, 0.3),
-                 Cor(-0.3, -0.3, 0.3),
+    draw_polygon(Cor(-var, -var, -var),
+                 Cor(var, -var, -var),
+                 Cor(var, -var, var),
+                 Cor(-var, -var, var),
                  Rgb_to_float(180, 255, 0));
 
-    draw_polygon(Cor(0.3, -0.3, 0.3),
-                 Cor(-0.3, -0.3, 0.3),
-                 Cor(-0.3, 0.3, 0.3),
-                 Cor(0.3, 0.3, 0.3),
+    draw_polygon(Cor(var, -var, var),
+                 Cor(-var, -var, var),
+                 Cor(-var, var, var),
+                 Cor(var, var, var),
                  Rgb_to_float(255, 255, 255));
 
 
@@ -442,7 +452,6 @@ int main(int argc, char **argv) {
 
     glutIdleFunc(spinCube);
 
-    glEnable(GL_DEPTH_TEST);
     glutMainLoop();
     return 0;
 }
