@@ -8,13 +8,12 @@ static int menu_id;
 static int submenu_id;
 static int rotate_submenu_id;
 static int typeSubmenuId;
-static int value = 1;
+static int value = 6;
 static float previousRotateSpeed = 1;
-static float rotateSpeed = 2;
+static float rotateSpeed = 1;
 static bool isStrip = false;
 static float circleRadius = 0;
 static bool isMultipleColor = true;
-static bool isTextured = true;
 
 class Cor {
     GLfloat CorTab[3]{};
@@ -45,6 +44,7 @@ public:
 
 };
 
+
 void menu(int num) {
     if (num == 0) {
         glutDestroyWindow(window);
@@ -62,27 +62,27 @@ static GLint axis = 2;
 
 void auxiliaryLines() {
 
-//    glBegin(GL_LINES);
-//    glColor3f(2.0f, 0.0f, 0.0f);
-//    glVertex3f(0.f, 0.f, 0.f);
-//    glVertex3f(2.f, 0.f, 0.f);
-//
-//    glColor3f(0.0f, 2.0f, 0.0f);
-//    glVertex3f(0.f, 0.f, 0.f);
-//    glVertex3f(0.f, 2.0f, 0.f);
-//
-//    glColor3f(0.0f, 0.0f, 2.0f);
-//    glVertex3f(0.f, 0.f, 0.f);
-//    glVertex3f(0.f, 0.f, 2.f);
-//
-//    glEnd();
+    glBegin(GL_LINES);
+    glColor3f(2.0f, 0.0f, 0.0f);
+    glVertex3f(0.f, 0.f, 0.f);
+    glVertex3f(2.f, 0.f, 0.f);
+
+    glColor3f(0.0f, 2.0f, 0.0f);
+    glVertex3f(0.f, 0.f, 0.f);
+    glVertex3f(0.f, 2.0f, 0.f);
+
+    glColor3f(0.0f, 0.0f, 2.0f);
+    glVertex3f(0.f, 0.f, 0.f);
+    glVertex3f(0.f, 0.f, 2.f);
+
+    glEnd();
 }
 
 
 void draw_polygon(Cor a, Cor b, Cor c, Cor d, Rgb_to_float color) {
 
     if (isStrip)
-        glBegin(GL_QUADS);
+        glBegin(GL_POLYGON);
     else
         glBegin(GL_LINE_STRIP);
 
@@ -94,35 +94,6 @@ void draw_polygon(Cor a, Cor b, Cor c, Cor d, Rgb_to_float color) {
     glVertex3fv(a());
     glVertex3fv(b());
     glVertex3fv(c());
-    glVertex3fv(d());
-    glVertex3fv(a());
-
-    glEnd();
-}
-
-
-void draw_polygont(Cor a, Cor b, Cor c, Cor d, Rgb_to_float color) {
-
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glEnable(GL_TEXTURE_2D);
-    if (isStrip)
-        glBegin(GL_QUADS);
-    else
-        glBegin(GL_LINE_STRIP);
-
-    if (isMultipleColor)
-        glColor3fv(color());
-    else
-        glColor3fv(Rgb_to_float(0, 255, 255)());
-
-    glTexCoord3fv(a());
-    glVertex3fv(a());
-    glTexCoord3fv(b());
-    glVertex3fv(b());
-    glTexCoord3fv(c());
-    glVertex3fv(c());
-    glTexCoord3fv(d());
     glVertex3fv(d());
     glVertex3fv(a());
 
@@ -130,8 +101,6 @@ void draw_polygont(Cor a, Cor b, Cor c, Cor d, Rgb_to_float color) {
 }
 
 void draw_triangle(Cor a, Cor b, Cor c, Rgb_to_float color) {
-
-
     if (isStrip)
         glBegin(GL_TRIANGLES);
     else
@@ -142,42 +111,13 @@ void draw_triangle(Cor a, Cor b, Cor c, Rgb_to_float color) {
     else
         glColor3fv(Rgb_to_float(0, 255, 255)());
 
-
     glVertex3fv(a());
-
     glVertex3fv(b());
-
     glVertex3fv(c());
 
 
     glEnd();
 
-}
-
-void draw_trianglet(Cor a, Cor b, Cor c, Rgb_to_float color) {
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glEnable(GL_TEXTURE_2D);
-
-
-    if (isStrip)
-        glBegin(GL_TRIANGLES);
-    else
-        glBegin(GL_LINE_STRIP);
-
-    if (isMultipleColor)
-        glColor3fv(color());
-    else
-        glColor3fv(Rgb_to_float(0, 255, 255)());
-
-    glTexCoord3fv(a());
-    glVertex3fv(a());
-    glTexCoord3fv(b());
-    glVertex3fv(b());
-    glTexCoord3fv(c());
-    glVertex3fv(c());
-
-    glEnd();
 }
 
 void draw_octahedron() {
@@ -233,141 +173,47 @@ void draw_octahedron() {
     glutSwapBuffers();
 }
 
-void draw_octahedront() {
-    glRotatef(theta[0], 1.0, 0.0, 0.0);
-    glRotatef(theta[1], 0.0, 1.0, 0.0);
-    glRotatef(theta[2], 0.0, 0.0, 1.0);
-    glTranslatef(circleRadius, 0.f, 0.f);
-
-
-    draw_trianglet(Cor(-0.3, 0, -0.3),
-                  Cor(0, 0.6, 0),
-                  Cor(-0.3, 0, 0.3),
-                  Rgb_to_float(255, 0, 0));
-    draw_trianglet(Cor(-0.3, 0, 0.3),
-                  Cor(0, 0.6, 0),
-                  Cor(0.3, 0, 0.3),
-                  Rgb_to_float(0, 255, 0));
-    draw_trianglet(Cor(0.3, 0, 0.3),
-                  Cor(0, 0.6, 0),
-                  Cor(0.3, 0, -0.3),
-                  Rgb_to_float(0, 0, 255));
-    draw_trianglet(Cor(0.3, 0, -0.3),
-                  Cor(0, 0.6, 0),
-                  Cor(-0.3, 0, -0.3),
-                  Rgb_to_float(255, 0, 255));
-
-    draw_trianglet(Cor(-0.3, 0, -0.3),
-                  Cor(0, -0.6, 0),
-                  Cor(-0.3, 0, 0.3),
-                  Rgb_to_float(255, 0, 0));
-    draw_trianglet(Cor(-0.3, 0, 0.3),
-                  Cor(0, -0.6, 0),
-                  Cor(0.3, 0, 0.3),
-                  Rgb_to_float(0, 255, 0));
-    draw_trianglet(Cor(0.3, 0, 0.3),
-                  Cor(0, -0.6, 0),
-                  Cor(0.3, 0, -0.3),
-                  Rgb_to_float(0, 0, 255));
-    draw_trianglet(Cor(0.3, 0, -0.3),
-                  Cor(0, -0.6, 0),
-                  Cor(-0.3, 0, -0.3),
-                  Rgb_to_float(255, 0, 255));
-
-    draw_polygont(Cor(-0.3, 0, -0.3),
-                 Cor(-0.3, 0, 0.3),
-                 Cor(0.3, 0, 0.3),
-                 Cor(0.3, 0, -0.3),
-                 Rgb_to_float(255, 255, 255));
-
-
-    auxiliaryLines();
-    glFlush();
-    glutSwapBuffers();
-}
-
 void draw_polygons() {
 /* odwzorowanie wierzchołków na ściany sześcianu */
     glTranslatef(circleRadius, 0.f, 0.f);
-    float var = 0.3;
 
-    draw_polygon(Cor(-var, -var, -var),
-                 Cor(-var, var, -var),
-                 Cor(var, var, -var),
-                 Cor(var, -var, -var),
+    draw_polygon(Cor(-0.3, -0.3, -0.3),
+                 Cor(-0.3, 0.3, -0.3),
+                 Cor(0.3, 0.3, -0.3),
+                 Cor(0.3, -0.3, -0.3),
                  Rgb_to_float(255, 255, 0));
 
-    draw_polygon(Cor(var, var, -var),
-                 Cor(-var, var, -var),
-                 Cor(-var, var, var),
-                 Cor(var, var, var),
+    draw_polygon(Cor(0.3, 0.3, -0.3),
+                 Cor(-0.3, 0.3, -0.3),
+                 Cor(-0.3, 0.3, 0.3),
+                 Cor(0.3, 0.3, 0.3),
                  Rgb_to_float(255, 0, 255));
 
-    draw_polygon(Cor(-var, -var, -var),
-                 Cor(-var, -var, var),
-                 Cor(-var, var, var),
-                 Cor(-var, var, -var),
+    draw_polygon(Cor(-0.3, -0.3, -0.3),
+                 Cor(-0.3, -0.3, 0.3),
+                 Cor(-0.3, 0.3, 0.3),
+                 Cor(-0.3, 0.3, -0.3),
                  Rgb_to_float(0, 255, 0));
 
-    draw_polygon(Cor(var, -var, -var),
-                 Cor(var, var, -var),
-                 Cor(var, var, var),
-                 Cor(var, -var, var),
+    draw_polygon(Cor(0.3, -0.3, -0.3),
+                 Cor(0.3, 0.3, -0.3),
+                 Cor(0.3, 0.3, 0.3),
+                 Cor(0.3, -0.3, 0.3),
                  Rgb_to_float(0, 255, 255));
 
-    draw_polygon(Cor(-var, -var, -var),
-                 Cor(var, -var, -var),
-                 Cor(var, -var, var),
-                 Cor(-var, -var, var),
+    draw_polygon(Cor(-0.3, -0.3, -0.3),
+                 Cor(0.3, -0.3, -0.3),
+                 Cor(0.3, -0.3, 0.3),
+                 Cor(-0.3, -0.3, 0.3),
                  Rgb_to_float(180, 255, 0));
 
-    draw_polygon(Cor(var, -var, var),
-                 Cor(-var, -var, var),
-                 Cor(-var, var, var),
-                 Cor(var, var, var),
+    draw_polygon(Cor(0.3, -0.3, 0.3),
+                 Cor(-0.3, -0.3, 0.3),
+                 Cor(-0.3, 0.3, 0.3),
+                 Cor(0.3, 0.3, 0.3),
                  Rgb_to_float(255, 255, 255));
-}
 
-void draw_polygonst() {
-/* odwzorowanie wierzchołków na ściany sześcianu */
-    glTranslatef(circleRadius, 0.f, 0.f);
-    float var = 0.3;
 
-    draw_polygont(Cor(-var, -var, -var),
-                  Cor(-var, var, -var),
-                  Cor(var, var, -var),
-                  Cor(var, -var, -var),
-                  Rgb_to_float(255, 255, 0));
-
-    draw_polygont(Cor(var, var, -var),
-                  Cor(-var, var, -var),
-                  Cor(-var, var, var),
-                  Cor(var, var, var),
-                  Rgb_to_float(255, 0, 255));
-
-    draw_polygont(Cor(-var, -var, -var),
-                  Cor(-var, -var, var),
-                  Cor(-var, var, var),
-                  Cor(-var, var, -var),
-                  Rgb_to_float(0, 255, 0));
-
-    draw_polygont(Cor(var, -var, -var),
-                  Cor(var, var, -var),
-                  Cor(var, var, var),
-                  Cor(var, -var, var),
-                  Rgb_to_float(0, 255, 255));
-
-    draw_polygont(Cor(-var, -var, -var),
-                  Cor(var, -var, -var),
-                  Cor(var, -var, var),
-                  Cor(-var, -var, var),
-                  Rgb_to_float(180, 255, 0));
-
-    draw_polygont(Cor(var, -var, var),
-                  Cor(-var, -var, var),
-                  Cor(-var, var, var),
-                  Cor(var, var, var),
-                  Rgb_to_float(255, 255, 255));
 }
 
 void draw_Cube() {
@@ -376,17 +222,6 @@ void draw_Cube() {
     glRotatef(theta[2], 0.0, 0.0, 1.0);
     glTranslatef(circleRadius, 0.f, 0.f);
     draw_polygons();
-    auxiliaryLines();
-    glFlush();
-    glutSwapBuffers();
-}
-
-void draw_Cubet() {
-    glRotatef(theta[0], 1.0, 0.0, 0.0);
-    glRotatef(theta[1], 0.0, 1.0, 0.0);
-    glRotatef(theta[2], 0.0, 0.0, 1.0);
-    glTranslatef(circleRadius, 0.f, 0.f);
-    draw_polygonst();
     auxiliaryLines();
     glFlush();
     glutSwapBuffers();
@@ -408,6 +243,9 @@ void draw_Teapot() {
 }
 
 int previousValue;
+
+
+
 
 void myReshape(int w, int h) {
     glViewport(0, 0, w, h);
@@ -443,7 +281,6 @@ void createMenu() {
     typeSubmenuId = glutCreateMenu(menu);
     glutAddMenuEntry("Strip/Polygon", 17);
     glutAddMenuEntry("OneColor/MultipleColor", 20);
-    glutAddMenuEntry("Texture", 21);
 
     menu_id = glutCreateMenu(menu);
     glutAddMenuEntry("Clear", 1);
@@ -451,7 +288,7 @@ void createMenu() {
     glutAddSubMenu("Rotate", rotate_submenu_id);
     glutAddSubMenu("Type", typeSubmenuId);
     glutAddMenuEntry("Quit", 0);
-
+    glutAddMenuEntry("TESTTTTTTTTT", 21);
 
     glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
@@ -481,14 +318,12 @@ void display() { /* funkcja wyświetlania, czyści bufor okna i bufor głębi, b
         }
             break;
         case 6: {
-            if(isTextured) draw_Cubet();
-            else draw_Cube();
+            draw_Cube();
             previousValue = 6;
         }
             break;
         case 7: {
-            if(isTextured) draw_octahedront();
-            else draw_octahedron();
+            draw_octahedron();
             previousValue = 7;
         }
             break;
@@ -541,6 +376,7 @@ void display() { /* funkcja wyświetlania, czyści bufor okna i bufor głębi, b
             value = previousValue;
         }
         case 16: {
+//            reset
             for (int i = 0; i <= 3; i++)
                 theta[i] = 0;
             circleRadius = 0.f;
@@ -570,9 +406,8 @@ void display() { /* funkcja wyświetlania, czyści bufor okna i bufor głębi, b
         }
             break;
         case 21: {
-            if (isTextured) isTextured = false;
-            else isTextured = true;
-            value = previousValue;
+            render();
+            previousValue = value;
         }
             break;
         default: {
